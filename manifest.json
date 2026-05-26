@@ -1,5 +1,11 @@
 {
     "version": 0,
+    "name": "cockpit-diskviewer",
+    "plugin_version": "1.1.43",
+    "requires": {
+        "cockpit": "276"
+    },
+    "version": 0,
     "menu": {
         "diskviewer": {
             "label": "Disk Viewer",
