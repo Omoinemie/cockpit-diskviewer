@@ -1,0 +1,124 @@
+name: Build & Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (留空则读取 version 文件)'
+        required: false
+        default: ''
+      changelog:
+        description: '更新日志 (可选，支持多行)'
+        required: false
+        default: ''
+      create_release:
+        description: '是否发布到 Release'
+        type: boolean
+        required: true
+        default: true
+permissions:
+  contents: write
+jobs:
+  prepare:
+    name: Determine Version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      ver: ${{ steps.resolve.outputs.ver }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve version
+        id: resolve
+        run: |
+          INPUT_VER="${{ github.event.inputs.version }}"
+          if [ -f version ]; then
+            FILE_VER=$(cat version | tr -d '[:space:]')
+          else
+            FILE_VER=""
+          fi
+          if [ -n "$INPUT_VER" ]; then
+            VER="$INPUT_VER"
+            if ! echo "$VER" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+              echo "::error::版本号格式无效: $VER (需要 x.y.z)"
+              exit 1
+            fi
+            echo "$VER" > version
+            echo "ver=${VER}" >> "$GITHUB_OUTPUT"
+            echo "📌 使用手动版本: $VER (version 文件已更新)"
+          elif [ -n "$FILE_VER" ]; then
+            VER="$FILE_VER"
+            echo "ver=${VER}" >> "$GITHUB_OUTPUT"
+            echo "📌 使用 version 文件版本: $VER"
+          else
+            VER="1.0.0"
+            echo "ver=${VER}" >> "$GITHUB_OUTPUT"
+            echo "📌 使用默认版本: $VER"
+          fi
+      - name: Write version to version file
+        run: |
+          echo "${{ steps.resolve.outputs.ver }}" > version
+          echo "✅ version → ${{ steps.resolve.outputs.ver }}"
+      - name: Commit version bump
+        if: ${{ github.event.inputs.version != '' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version
+          git diff --staged --quiet && exit 0
+          git commit -m "chore: bump version to ${{ steps.resolve.outputs.ver }}"
+          git push
+  build:
+    name: Build .deb
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y dpkg-dev rsync
+      - name: Build .deb package
+        run: |
+          echo "${{ needs.prepare.outputs.ver }}" > version
+          chmod +x build-deb.sh
+          ./build-deb.sh
+          mv ../*.deb . 2>/dev/null || true
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: ./*.deb
+  release:
+    name: Create Release
+    needs: [prepare, build]
+    if: ${{ github.event.inputs.create_release == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: deb-package
+          path: .
+      - name: Build release body
+        id: body
+        run: |
+          VER="${{ needs.prepare.outputs.ver }}"
+          CL="${{ github.event.inputs.changelog }}"
+          BODY="## Cockpit Disk Viewer v${VER}"$'\n\n'
+          if [ -n "$CL" ]; then
+            BODY+="### 更新日志"$'\n'
+            BODY+="${CL}"$'\n\n'
+          fi
+          BODY+="### 安装"$'\n'
+          BODY+='```bash'$'\n'
+          BODY+="sudo dpkg -i cockpit-diskviewer_${VER}_all.deb"$'\n'
+          BODY+="sudo systemctl restart cockpit"$'\n'
+          BODY+='```'$'\n'
+          echo "$BODY" > /tmp/release_body.md
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.prepare.outputs.ver }}
+          name: v${{ needs.prepare.outputs.ver }}
+          body_path: /tmp/release_body.md
+          files: cockpit-diskviewer_*_all.deb
