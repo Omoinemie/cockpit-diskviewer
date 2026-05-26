@@ -1,0 +1,43 @@
+@media (max-width: 1024px) {
+    :root { --sidebar-width: 240px; }
+    .card-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .notif-panel { right: 10px; width: 300px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .io-stats-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
+@media (max-width: 768px) {
+    .card-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat-card .stat-value { font-size: 1.5rem; }
+    .top-nav { padding: 0 8px; gap: 4px; }
+    .icon-btn { width: 34px; height: 34px; }
+    .icon-btn svg { width: 16px; height: 16px; }
+    .logo-area { font-size: 0.95rem; gap: 6px; }
+    .logo-icon { width: 30px; height: 30px; font-size: 0.9rem; }
+    .content-card { padding: 14px 16px; }
+    .simple-table { font-size: 0.75rem; }
+    .simple-table th, .simple-table td { padding: 8px 6px; }
+    .disk-select-bar { flex-direction: column; align-items: stretch; }
+    .disk-select-bar select { min-width: auto; }
+    .test-cards { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .card-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .io-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .icon-btn { width: 30px; height: 30px; }
+    .icon-btn svg { width: 15px; height: 15px; }
+    .top-nav { gap: 1px; padding: 0 4px; }
+    .logo-area { font-size: 0.8rem; gap: 4px; }
+    .logo-icon { width: 26px; height: 26px; font-size: 0.75rem; }
+    .io-chart-container { height: 150px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+::selection { background: var(--accent-light); color: var(--text-primary); }

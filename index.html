@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disk Viewer — Cockpit</title>
+    <link rel="stylesheet" href="static/css/variables.css">
+    <link rel="stylesheet" href="static/css/layout.css">
+    <link rel="stylesheet" href="static/css/components.css">
+    <link rel="stylesheet" href="static/css/toast.css">
+    <link rel="stylesheet" href="static/css/responsive.css">
+</head>
+<body class="menu-side">
+
+    <a href="#main-content" class="skip-link" data-i18n="skipToContent">跳转到主内容</a>
+
+    <!-- ===== Top Nav ===== -->
+    <nav class="top-nav" id="topNav" aria-label="Top navigation">
+        <div class="top-nav-left">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu" title="Toggle menu" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+            </button>
+            <div class="logo-area">
+                <div class="logo-icon">D</div>
+                <span data-i18n="appName">Disk Viewer</span>
+            </div>
+        </div>
+        <div class="top-nav-right">
+            <button class="icon-btn" id="statusBtn" title="Service status" aria-label="Service status">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                <span class="status-dot online" id="statusDot"></span>
+            </button>
+            <button class="icon-btn" id="refreshBtn" title="Refresh" aria-label="Refresh data">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
+            <button class="icon-btn" id="menuLayoutBtn" title="Toggle layout" aria-label="Toggle menu layout">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" id="layoutIconTop"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" id="layoutIconSide" style="display:none;"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>
+            </button>
+            <button class="icon-btn" id="langBtn" title="Language" aria-label="Switch language">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </button>
+            <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIconSun"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="themeIconMoon" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Open settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== Top Menu Row ===== -->
+    <div class="top-menu-row" id="topMenuRow">
+        <div class="top-menu-bar" id="topMenuBar" role="navigation" aria-label="Top menu"></div>
+    </div>
+
+    <!-- ===== Main Layout ===== -->
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <aside class="sidebar" id="sidebar" aria-label="Sidebar navigation">
+            <div class="sidebar-header" data-i18n="navigation">导航菜单</div>
+            <nav class="sidebar-nav" id="sidebarNav" role="navigation" aria-label="Sidebar menu"></nav>
+        </aside>
+
+        <main class="main-content" id="main-content">
+
+            <!-- ===== DASHBOARD ===== -->
+            <div class="demo-section active" id="sec-dashboard">
+                <div class="card-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-accent"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+                        <div class="stat-value" id="dashTotalDisks">-</div>
+                        <div class="stat-label" data-i18n="dashboardTotalDisks">磁盘总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-success"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+                        <div class="stat-value" id="dashHealthy">-</div>
+                        <div class="stat-label" data-i18n="dashboardHealthy">健康</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-warning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                        <div class="stat-value" id="dashWarning">-</div>
+                        <div class="stat-label" data-i18n="dashboardWarning">警告</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+                        <div class="stat-value" id="dashCritical">-</div>
+                        <div class="stat-label" data-i18n="dashboardCritical">异常</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                        <div class="stat-value" id="dashTotalCapacity">-</div>
+                        <div class="stat-label" data-i18n="dashboardTotalCapacity">总容量</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-warning"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+                        <div class="stat-value" id="dashAvgTemp">-</div>
+                        <div class="stat-label" data-i18n="dashboardAvgTemp">平均温度</div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 data-i18n="dashboardDiskOverview">磁盘总览</h2>
+                    <div style="overflow-x:auto;">
+                        <table class="simple-table">
+                            <thead><tr><th style="width:10%">Device</th><th style="width:18%" data-i18n="diskModel">型号</th><th style="width:8%" data-i18n="diskCapacity">容量</th><th style="width:10%" data-i18n="diskTransport">接口</th><th style="width:8%" data-i18n="diskTemperature">温度</th><th style="width:10%" data-i18n="hibernateCurrentState">状态</th><th style="width:14%" data-i18n="dashboardRuntime">运行时间</th><th style="width:10%" data-i18n="smartHealthStatus">健康</th></tr></thead>
+                            <tbody id="dashDiskTableBody">
+                                <tr><td colspan="8" class="loading-overlay"><span class="spinner"></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== DISK INFO ===== -->
+            <div class="demo-section" id="sec-diskinfo">
+                <div class="disk-select-bar">
+                    <label data-i18n="diskSelectDisk">选择磁盘</label>
+                    <select id="diskInfoSelect"></select>
+                    <button class="btn btn-secondary btn-sm" id="btnRefreshDiskInfo">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span data-i18n="btnRefresh">刷新</span>
+                    </button>
+                </div>
+                <div id="diskInfoLoading" class="loading-overlay"><span class="spinner spinner-lg"></span><span data-i18n="toastRefreshing">加载中...</span></div>
+                <div id="diskInfoContent" style="display:none;">
+                    <div class="content-card">
+                        <h2 data-i18n="diskBasicInfo">基本信息</h2>
+                        <div id="diskDetailGrid" class="info-grid"></div>
+                    </div>
+                    <div class="content-card">
+                        <h2 data-i18n="diskPartitions">分区信息</h2>
+                        <div style="overflow-x:auto;">
+                            <table class="simple-table">
+                                <thead><tr><th data-i18n="diskPartitionName">设备</th><th data-i18n="diskPartitionSize">大小</th><th data-i18n="diskPartitionMount">挂载点</th><th data-i18n="diskPartitionFs">文件系统</th><th data-i18n="diskPartitionUsage">使用率</th></tr></thead>
+                                <tbody id="partitionTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== SMART ===== -->
+            <div class="demo-section" id="sec-smart">
+                <div class="disk-select-bar">
+                    <label data-i18n="diskSelectDisk">选择磁盘</label>
+                    <select id="smartDiskSelect"></select>
+                    <button class="btn btn-secondary btn-sm" id="btnRefreshSmart">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span data-i18n="btnRefresh">刷新</span>
+                    </button>
+                </div>
+                <div id="smartLoading" class="loading-overlay"><span class="spinner spinner-lg"></span></div>
+                <div id="smartContent" style="display:none;">
+                    <div class="content-card">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+                            <h2 style="margin:0;" data-i18n="smartHealthStatus">健康状态</h2>
+                            <span id="smartHealthBadge" style="font-weight:700">...</span>
+                        </div>
+                    </div>
+                    <div class="content-card">
+                        <h2 data-i18n="smartAttributes">SMART 属性</h2>
+                        <div style="overflow-x:auto;">
+                            <table class="simple-table">
+                                <thead><tr><th data-i18n="smartAttrId">ID</th><th data-i18n="smartAttrName">属性名</th><th data-i18n="smartAttrValue">当前值</th><th data-i18n="smartAttrWorst">最差值</th><th data-i18n="smartAttrThresh">阈值</th><th data-i18n="smartAttrRaw">原始值</th><th data-i18n="smartAttrStatus">状态</th></tr></thead>
+                                <tbody id="smartAttrTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="content-card">
+                        <h2 data-i18n="smartErrorLog">错误日志 <span id="smartErrorCount" style="font-weight:700;color:var(--text-tertiary)">0</span></h2>
+                        <div id="smartErrorList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== HIBERNATION ===== -->
+            <div class="demo-section" id="sec-hibernation">
+                <div class="disk-select-bar">
+                    <label data-i18n="diskSelectDisk">选择磁盘</label>
+                    <select id="hibDiskSelect"></select>
+                    <button class="btn btn-secondary btn-sm" id="btnRefreshHib">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span data-i18n="btnRefresh">刷新</span>
+                    </button>
+                </div>
+
+                <div class="content-card">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <h2 style="margin:0;" data-i18n="hibernateCurrentState">当前状态</h2>
+                        <span id="hibStateBadge" style="font-weight:700">...</span>
+                        <span id="hibDurationLabel" style="font-size:0.85rem;font-weight:600">-</span>
+                        <span id="hibDurationValue" style="font-weight:600">-</span>
+                        <div style="margin-left:auto;display:flex;gap:8px;">
+                            <button class="btn btn-warning btn-sm" id="btnSleepNow">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                                <span data-i18n="hibernateSleepNow">立即休眠</span>
+                            </button>
+                            <button class="btn btn-success btn-sm" id="btnWakeUp">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+                                <span data-i18n="hibernateWakeUp">唤醒磁盘</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="content-card">
+                        <h2 data-i18n="hibernateSetTimer">设置休眠定时器</h2>
+                        <p style="margin-bottom:16px;" data-i18n="hibernateTimerDesc">设置磁盘空闲后进入待机模式的超时时间</p>
+                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <select id="hibTimerSelect" style="padding:8px 14px;border-radius:var(--radius-md);border:1.5px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-primary);font-size:0.88rem;min-width:180px;">
+                                <option value="0" data-i18n="hibernateTimerDisabled">禁用（常开）</option>
+                                <option value="60" data-i18n="hibernateTimer5min">5 分钟</option>
+                                <option value="120" data-i18n="hibernateTimer10min">10 分钟</option>
+                                <option value="360" data-i18n="hibernateTimer30min">30 分钟</option>
+                                <option value="720" data-i18n="hibernateTimer1hour">1 小时</option>
+                                <option value="1440" data-i18n="hibernateTimer2hour">2 小时</option>
+                                <option value="2880" data-i18n="hibernateTimer4hour">4 小时</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm" id="btnSetTimer" data-i18n="btnApply">应用</button>
+                        </div>
+                    </div>
+
+                    <div class="content-card" id="hibApmCard">
+                        <h2 data-i18n="hibernateApm">高级电源管理</h2>
+                        <p style="margin-bottom:12px;color:var(--text-tertiary);font-size:0.82rem;" data-i18n="hibernateApmDesc3">启用后设置等级并应用。254=省电，1=最高性能，机械盘建议关闭，SSD无需设置</p>
+                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <label class="toggle-switch" id="hibApmToggle">
+                                <input type="checkbox" id="hibApmCheck">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span data-i18n="hibernateApmEnable">启用 APM</span>
+                            <input type="number" id="hibApmInput" min="1" max="254" value="128" style="width:80px;padding:8px 12px;border-radius:var(--radius-md);border:1.5px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-primary);font-size:0.88rem;font-family:var(--font-mono);text-align:center;display:none;">
+                            <button class="btn btn-primary btn-sm" id="btnSetApm" data-i18n="btnApply">应用</button>
+                        </div>
+                    </div>
+
+                    <div class="content-card" id="hibCacheCard">
+                        <h2 data-i18n="hibernateCache">硬盘缓存设置</h2>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                            <label class="toggle-switch" id="hibWriteCacheToggle">
+                                <input type="checkbox" id="hibWriteCacheCheck">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span data-i18n="hibernateWriteCacheEnable">启用写缓存</span>
+                        </div>
+                        <p style="margin-bottom:16px;color:var(--text-tertiary);font-size:0.82rem;" data-i18n="hibernateCacheDesc">启用可提高写入性能，但可能影响数据安全性</p>
+                        <button class="btn btn-primary btn-sm" id="btnSetCache" data-i18n="btnApply">应用</button>
+                    </div>
+                </div>
+
+                <div class="content-card" id="hibHistoryCard">
+                    <h2 data-i18n="hibernateHistory">状态变更记录</h2>
+                    <div style="overflow-x:auto;">
+                        <table class="simple-table">
+                            <thead><tr>
+                                <th style="width:20%" data-i18n="hibernateHistoryState">状态</th>
+                                <th style="width:30%" data-i18n="hibernateHistoryStart">开始时间</th>
+                                <th style="width:30%" data-i18n="hibernateHistoryEnd">结束时间</th>
+                                <th style="width:20%" data-i18n="hibernateHistoryDuration">持续时长</th>
+                            </tr></thead>
+                            <tbody id="hibHistoryBody">
+                                <tr><td colspan="4" class="empty-state"><div class="empty-text" data-i18n="hibernateHistoryEmpty">暂无记录</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="hibHistoryPagination" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;"></div>
+                </div>
+            </div>
+
+            <!-- ===== IO MONITOR ===== -->
+            <div class="demo-section" id="sec-iomonitor">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+                    <div class="io-stats-grid" style="flex:1;min-width:300px;margin-bottom:0;">
+                        <div class="io-stat-item">
+                            <div class="io-stat-value" id="ioReadSpeed">-</div>
+                            <div class="io-stat-label" data-i18n="ioReadSpeed">读取速度</div>
+                        </div>
+                        <div class="io-stat-item">
+                            <div class="io-stat-value" id="ioWriteSpeed">-</div>
+                            <div class="io-stat-label" data-i18n="ioWriteSpeed">写入速度</div>
+                        </div>
+                        <div class="io-stat-item">
+                            <div class="io-stat-value" id="ioUtilization">-</div>
+                            <div class="io-stat-label" data-i18n="ioUtilization">利用率</div>
+                        </div>
+                        <div class="io-stat-item">
+                            <div class="io-stat-value" id="ioIops">-</div>
+                            <div class="io-stat-label" data-i18n="ioIops">IOPS</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <label style="font-size:0.85rem;color:var(--text-tertiary);white-space:nowrap;" data-i18n="ioRefreshInterval">刷新间隔</label>
+                        <select id="ioRefreshSelect" style="padding:6px 10px;border-radius:var(--radius-md);border:1.5px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-primary);font-size:0.85rem;">
+                            <option value="500">0.5s</option>
+                            <option value="1000" selected>1s</option>
+                            <option value="2000">2s</option>
+                            <option value="3000">3s</option>
+                            <option value="5000">5s</option>
+                            <option value="10000">10s</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 data-i18n="ioChartTitle">实时 I/O 吞吐量</h2>
+                    <div class="io-chart-container">
+                        <canvas class="io-chart-canvas" id="ioChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 data-i18n="ioPerDisk">各磁盘 I/O 统计</h2>
+                    <div style="overflow-x:auto;">
+                        <table class="simple-table">
+                            <thead><tr><th>Device</th><th data-i18n="diskModel">型号</th><th data-i18n="ioReadSpeed">Read</th><th data-i18n="ioWriteSpeed">Write</th><th data-i18n="ioReadIops">Read IOPS</th><th data-i18n="ioWriteIops">Write IOPS</th><th data-i18n="ioUtilization">Util</th></tr></thead>
+                            <tbody id="ioPerDiskBody">
+                                <tr><td colspan="7" class="loading-overlay"><span class="spinner"></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== IO DETAIL MODAL ===== -->
+            <div class="modal-overlay" id="ioDetailOverlay">
+                <div class="modal" style="width:800px;max-width:95vw;max-height:90vh;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                        <h3 style="margin:0;" id="ioDetailTitle">I/O 详情</h3>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <select id="ioDetailRange" style="padding:6px 10px;border-radius:var(--radius-md);border:1.5px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-primary);font-size:0.85rem;">
+                                <option value="60">1 分钟</option>
+                                <option value="120">2 分钟</option>
+                                <option value="300">5 分钟</option>
+                                <option value="600">10 分钟</option>
+                            </select>
+                            <button class="icon-btn" id="ioDetailClose" title="Close" aria-label="Close">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                        <div>
+                            <div style="font-size:0.82rem;font-weight:600;color:var(--text-tertiary);margin-bottom:6px;" data-i18n="ioReadSpeed">读取速度</div>
+                            <div class="io-chart-container" style="height:160px;"><canvas id="ioDetailReadSpeed"></canvas></div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.82rem;font-weight:600;color:var(--text-tertiary);margin-bottom:6px;" data-i18n="ioWriteSpeed">写入速度</div>
+                            <div class="io-chart-container" style="height:160px;"><canvas id="ioDetailWriteSpeed"></canvas></div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.82rem;font-weight:600;color:var(--text-tertiary);margin-bottom:6px;" data-i18n="ioReadIops">Read IOPS</div>
+                            <div class="io-chart-container" style="height:160px;"><canvas id="ioDetailReadIops"></canvas></div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.82rem;font-weight:600;color:var(--text-tertiary);margin-bottom:6px;" data-i18n="ioWriteIops">Write IOPS</div>
+                            <div class="io-chart-container" style="height:160px;"><canvas id="ioDetailWriteIops"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== SELF TEST ===== -->
+            <div class="demo-section" id="sec-selftest">
+                <div class="disk-select-bar">
+                    <label data-i18n="diskSelectDisk">选择磁盘</label>
+                    <select id="selfTestDiskSelect"></select>
+                    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+                        <span data-i18n="selfTestStatus">状态</span>
+                        <span id="selfTestStatusBadge" style="font-weight:700">...</span>
+                    </div>
+                </div>
+
+                <div class="test-cards">
+                    <div class="test-card">
+                        <h4 data-i18n="selfTestShort">短测</h4>
+                        <p data-i18n="selfTestShortDesc">快速扫描（约2分钟），检查电气和机械组件</p>
+                        <button class="btn btn-primary" id="btnShortTest" data-i18n="selfTestShort">开始短测</button>
+                    </div>
+                    <div class="test-card">
+                        <h4 data-i18n="selfTestLong">长测</h4>
+                        <p data-i18n="selfTestLongDesc">全面扫描（数小时），完整表面读取扫描</p>
+                        <button class="btn btn-primary" id="btnLongTest" data-i18n="selfTestLong">开始长测</button>
+                    </div>
+                    <div class="test-card">
+                        <h4 data-i18n="selfTestConveyance">运输测试</h4>
+                        <p data-i18n="selfTestConveyanceDesc">检查运输过程中是否造成损坏（约5分钟）</p>
+                        <button class="btn btn-primary" id="btnConveyanceTest" data-i18n="selfTestConveyance">开始测试</button>
+                    </div>
+                </div>
+
+                <div id="selfTestAbortSection" style="margin-top:16px;display:none;">
+                    <button class="btn btn-danger" id="btnAbortTest">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <span data-i18n="selfTestAbort">中止测试</span>
+                    </button>
+                </div>
+
+                <div class="content-card" style="margin-top:18px;">
+                    <h2 data-i18n="smartSelfTestLog">自检日志</h2>
+                    <div style="overflow-x:auto;">
+                        <table class="simple-table">
+                            <thead><tr><th>#</th><th data-i18n="selfTestStatus">状态</th><th data-i18n="selfTestLastResult">结果</th><th data-i18n="diskPowerOnHours">运行时间</th></tr></thead>
+                            <tbody id="selfTestLogBody">
+                                <tr><td colspan="4" class="loading-overlay"><span class="spinner"></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <footer class="app-footer">
+        <span>© 2026 <span data-i18n="appName">Disk Viewer</span></span>
+        <span>|</span>
+        <span data-i18n="version">版本</span>: v1.1.0</span>
+        <span>|</span>
+        <span id="footerStatus" data-i18n="serviceNormal">服务正常运行中</span>
+    </footer>
+
+    <!-- ===== Settings Modal ===== -->
+    <div class="modal-overlay" id="settingsOverlay">
+        <div class="modal" id="settingsModal" role="dialog" aria-labelledby="settingsTitle">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                <h3 id="settingsTitle" data-i18n="settings" style="margin:0;">设置</h3>
+                <button class="icon-btn" id="settingsClose" title="Close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="form-group">
+                <label data-i18n="settingTheme">主题模式</label>
+                <div class="custom-select" data-field="settingTheme">
+                    <div class="custom-select-trigger" tabindex="0"><span class="custom-select-value"></span><svg class="custom-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option" data-value="light" data-i18n="themeLight">明亮模式</div>
+                        <div class="custom-select-option" data-value="dark" data-i18n="themeDark">暗黑模式</div>
+                        <div class="custom-select-option" data-value="system" data-i18n="themeSystem">跟随系统</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label data-i18n="settingLang">界面语言</label>
+                <div class="custom-select" data-field="settingLang">
+                    <div class="custom-select-trigger" tabindex="0"><span class="custom-select-value"></span><svg class="custom-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option" data-value="zh-CN" data-i18n="langZH">中文简体</div>
+                        <div class="custom-select-option" data-value="en" data-i18n="langEN">English</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label data-i18n="settingMenuLayout">菜单布局</label>
+                <div class="custom-select" data-field="settingMenuLayout">
+                    <div class="custom-select-trigger" tabindex="0"><span class="custom-select-value"></span><svg class="custom-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option" data-value="side" data-i18n="menuSide">侧边栏菜单</div>
+                        <div class="custom-select-option" data-value="top" data-i18n="menuTop">顶部栏菜单</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label data-i18n="settingAccentColor">主题颜色</label>
+                <div class="color-picker-row">
+                    <div class="color-swatch active" data-color="#4f6ef7" style="background:#4f6ef7;"></div>
+                    <div class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6;"></div>
+                    <div class="color-swatch" data-color="#ec4899" style="background:#ec4899;"></div>
+                    <div class="color-swatch" data-color="#ef4444" style="background:#ef4444;"></div>
+                    <div class="color-swatch" data-color="#f59e0b" style="background:#f59e0b;"></div>
+                    <div class="color-swatch" data-color="#10b981" style="background:#10b981;"></div>
+                    <div class="color-swatch" data-color="#06b6d4" style="background:#06b6d4;"></div>
+                    <div class="color-custom-wrap">
+                        <input type="color" class="color-custom-input" id="colorCustomPicker" value="#4f6ef7">
+                        <input type="text" class="color-hex-input" id="colorHexInput" value="#4F6EF7" maxlength="7" spellcheck="false">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label data-i18n="settingRefreshInterval">刷新间隔（秒）</label>
+                <input type="number" id="settingRefreshInterval" min="1" max="60" value="5" style="width:100%;padding:11px 14px;border-radius:var(--radius-md);border:1.5px solid var(--border-color);background:var(--bg-tertiary);color:var(--text-primary);font-size:0.9rem;outline:none;">
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="settingsReset" data-i18n="resetDefaults">恢复默认</button>
+                <button class="btn btn-primary" id="settingsSave" data-i18n="saveSettings">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Lang Dropdown ===== -->
+    <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-dropdown-item active" data-lang="zh-CN">
+            <span class="lang-flag">🇨🇳</span><span>中文简体</span>
+            <span class="lang-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </div>
+        <div class="lang-dropdown-item" data-lang="en">
+            <span class="lang-flag">🇺🇸</span><span>English</span>
+            <span class="lang-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M20 6L9 17l-5-5"/></svg></span>
+        </div>
+    </div>
+
+    <!-- ===== Toast Container ===== -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+    <!-- ===== Scripts ===== -->
+    <script src="../base1/cockpit.js"></script>
+    <script src="static/js/app.js"></script>
+</body>
+</html>

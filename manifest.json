@@ -1,0 +1,11 @@
+{
+    "version": 0,
+    "menu": {
+        "diskviewer": {
+            "label": "Disk Viewer",
+            "path": "index.html",
+            "order": 30
+        }
+    },
+    "content-security-policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' ws: wss:; img-src 'self' data:;"
+}

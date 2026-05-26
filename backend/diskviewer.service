@@ -1,0 +1,15 @@
+[Unit]
+Description=Cockpit Disk Viewer Backend
+After=local-fs.target
+Wants=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/share/cockpit/diskviewer/backend/diskviewer-backend.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
