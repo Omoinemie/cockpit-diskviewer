@@ -19,6 +19,22 @@ OUTPUT="${WORKSPACE}/${DEB_NAME}"
 
 echo "Building ${PACKAGE} v${VERSION}"
 
+# ── Sync version to source files ───────────────────────────────
+if command -v python3 &>/dev/null; then
+    python3 -c "
+import json
+with open('manifest.json', 'r') as f:
+    m = json.load(f)
+m['plugin_version'] = '$VERSION'
+with open('manifest.json', 'w') as f:
+    json.dump(m, f, indent=4)
+"
+    echo "✅ Synced version to manifest.json"
+fi
+# Update version in index.html footer
+sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v${VERSION}/g" index.html
+echo "✅ Synced version to index.html"
+
 # ── Staging ───────────────────────────────────────────────────
 STAGING="$(mktemp -d)"
 trap 'rm -rf "$STAGING"' EXIT
@@ -32,17 +48,6 @@ mkdir -p "${STAGING}/lib/systemd/system"
 
 # Copy plugin files, inject version into HTML
 cp manifest.json "$DEST/"
-# Update plugin_version in manifest.json
-if command -v python3 &>/dev/null; then
-    python3 -c "
-import json
-with open('$DEST/manifest.json', 'r') as f:
-    m = json.load(f)
-m['plugin_version'] = '$VERSION'
-with open('$DEST/manifest.json', 'w') as f:
-    json.dump(m, f, indent=4)
-"
-fi
 cp -r static "$DEST/"
 sed "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v${VERSION}/g" index.html > "$DEST/index.html"
 
@@ -131,23 +136,5 @@ dpkg-deb --root-owner-group --build "$STAGING" "$OUTPUT"
 echo ""
 echo "Built: ${DEB_NAME}"
 echo "Size:  $(du -h "$OUTPUT" | cut -f1)"
-
-# ── Bump patch version ───────────────────────────────────────
-IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-PATCH=$((PATCH + 1))
-NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-echo "$NEW_VERSION" > version
-# Update plugin_version in source manifest.json
-if command -v python3 &>/dev/null; then
-    python3 -c "
-import json
-with open('manifest.json', 'r') as f:
-    m = json.load(f)
-m['plugin_version'] = '$NEW_VERSION'
-with open('manifest.json', 'w') as f:
-    json.dump(m, f, indent=4)
-"
-fi
-echo "Next version: ${NEW_VERSION}"
 echo ""
 echo "Install: sudo dpkg -i ${OUTPUT}"
